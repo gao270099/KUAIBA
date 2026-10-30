@@ -6,10 +6,10 @@ on:
   workflow_dispatch:
 
 # -------------------------------------------------------------
-# 这里填入你在【第二步】获得的专属 Streamlit 访问网址！
+# 提示：确认这里的网址是你的专属访问网址
 # -------------------------------------------------------------
 env:
-  TARGET_URL: "https://kuaiba-f7h47qstzwr4rzyw3ryumf.streamlit.app"
+  TARGET_URL: "https://share.streamlit.io"
 
 jobs:
   build:
@@ -29,13 +29,20 @@ jobs:
           mkdir -p android/app/src/main/java/com/happy8/app
           cd android
 
-          # 1. 生成 settings.gradle
+          # 1. 修复核心：生成 gradle.properties 开启 AndroidX
+          cat << 'EOF' > gradle.properties
+          android.useAndroidX=true
+          android.enableJetifier=true
+          org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
+          EOF
+
+          # 2. 生成 settings.gradle
           cat << 'EOF' > settings.gradle
           rootProject.name = 'Happy8App'
           include ':app'
           EOF
 
-          # 2. 生成根目录 build.gradle
+          # 3. 生成根目录 build.gradle
           cat << 'EOF' > build.gradle
           buildscript {
               repositories {
@@ -54,7 +61,7 @@ jobs:
           }
           EOF
 
-          # 3. 生成 app/build.gradle
+          # 4. 生成 app/build.gradle
           cat << 'EOF' > app/build.gradle
           plugins {
               id 'com.android.application'
@@ -84,7 +91,7 @@ jobs:
           }
           EOF
 
-          # 4. 生成 AndroidManifest.xml
+          # 5. 生成 AndroidManifest.xml
           cat << 'EOF' > app/src/main/AndroidManifest.xml
           <?xml version="1.0" encoding="utf-8"?>
           <manifest xmlns:android="http://schemas.android.com/apk/res/android">
@@ -107,7 +114,7 @@ jobs:
           </manifest>
           EOF
 
-          # 5. 生成 MainActivity.java
+          # 6. 生成 MainActivity.java
           cat << 'EOF' > app/src/main/java/com/happy8/app/MainActivity.java
           package com.happy8.app;
 
@@ -154,8 +161,8 @@ jobs:
           # 替换实际网址
           sed -i "s|MY_WEB_URL_PLACEHOLDER|${TARGET_URL}|g" app/src/main/java/com/happy8/app/MainActivity.java
 
-          # 初始化 Gradle Wrapper
-          gradle wrapper
+          # 使用稳定的 Gradle 8.6 构建版本，避免兼容警告
+          gradle wrapper --gradle-version 8.6
 
       - name: Build Debug APK
         run: |
