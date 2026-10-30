@@ -5,11 +5,9 @@ on:
     branches: [ "main", "master" ]
   workflow_dispatch:
 
-# -------------------------------------------------------------
-# 提示：确认这里的网址是你的专属访问网址
-# -------------------------------------------------------------
+# 你的专属在线服务网址
 env:
-  TARGET_URL: "https://share.streamlit.io"
+  TARGET_URL: "https://kuaiba-f7h47qstzwr4rzyw3ryumf.streamlit.app/"
 
 jobs:
   build:
@@ -29,7 +27,7 @@ jobs:
           mkdir -p android/app/src/main/java/com/happy8/app
           cd android
 
-          # 1. 修复核心：生成 gradle.properties 开启 AndroidX
+          # 1. 开启 AndroidX 支持
           cat << 'EOF' > gradle.properties
           android.useAndroidX=true
           android.enableJetifier=true
@@ -158,10 +156,10 @@ jobs:
           }
           EOF
 
-          # 替换实际网址
+          # 写入你的专属网址
           sed -i "s|MY_WEB_URL_PLACEHOLDER|${TARGET_URL}|g" app/src/main/java/com/happy8/app/MainActivity.java
 
-          # 使用稳定的 Gradle 8.6 构建版本，避免兼容警告
+          # 使用稳定的 Gradle 8.6 构建版本
           gradle wrapper --gradle-version 8.6
 
       - name: Build Debug APK
